@@ -1,0 +1,24 @@
+{
+  "name": "debugbridge",
+  "version": "1.0.0",
+  "description": "CLI to capture your dev environment and upload to DebugBridge",
+  "type": "module",
+  "bin": {
+    "debugbridge": "./bin/debugbridge.js"
+  },
+  "scripts": {
+    "start": "node bin/debugbridge.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "ora": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["debugbridge", "environment", "debug", "devtools"],
+  "license": "MIT",
+  "author": "Akhil Vase"
+}
