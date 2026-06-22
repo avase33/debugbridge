@@ -1,51 +1,56 @@
-/**
- * DebugBridge -- Environment Diff Utilities
- */
-
-export interface BridgeSnapshot {
-  name: string;
-  version: string;
-  created: string;
-  runtime: Record<string, string>;
-  packages: Record<string, string>;
-  env: Record<string, string>;
-}
+// Environment diff utilities -- 2026-06-22 12:53:41
+import { EnvSnapshot } from './snapshot';
 
 export interface DiffResult {
   added: Record<string, string>;
   removed: Record<string, string>;
   changed: Record<string, { from: string; to: string }>;
-  unchanged: number;
+  identical: number;
 }
 
-export function diffRecord(before: Record<string, string>, after: Record<string, string>): DiffResult {
+export function diffPackages(a: EnvSnapshot, b: EnvSnapshot): DiffResult {
   const added: Record<string, string> = {};
   const removed: Record<string, string> = {};
   const changed: Record<string, { from: string; to: string }> = {};
-  let unchanged = 0;
-  for (const [key, val] of Object.entries(after)) {
-    if (!(key in before)) added[key] = val;
-    else if (before[key] !== val) changed[key] = { from: before[key], to: val };
-    else unchanged++;
-  }
-  for (const key of Object.keys(before)) {
-    if (!(key in after)) removed[key] = before[key];
-  }
-  return { added, removed, changed, unchanged };
+  let identical = 0;
+
+  const allKeys = new Set([...Object.keys(a.packages), ...Object.keys(b.packages)]);
+  allKeys.forEach(key => {
+    const aVal = a.packages[key];
+    const bVal = b.packages[key];
+    if (!aVal) added[key] = bVal;
+    else if (!bVal) removed[key] = aVal;
+    else if (aVal !== bVal) changed[key] = { from: aVal, to: bVal };
+    else identical++;
+  });
+
+  return { added, removed, changed, identical };
 }
 
-export function diffSnapshots(before: BridgeSnapshot, after: BridgeSnapshot) {
-  return {
-    runtime: diffRecord(before.runtime, after.runtime),
-    packages: diffRecord(before.packages, after.packages),
-    env: diffRecord(before.env, after.env),
-  };
+export function diffEnvVars(a: EnvSnapshot, b: EnvSnapshot): DiffResult {
+  const added: Record<string, string> = {};
+  const removed: Record<string, string> = {};
+  const changed: Record<string, { from: string; to: string }> = {};
+  let identical = 0;
+
+  const allKeys = new Set([...Object.keys(a.envVars), ...Object.keys(b.envVars)]);
+  allKeys.forEach(key => {
+    const aVal = a.envVars[key];
+    const bVal = b.envVars[key];
+    if (!aVal) added[key] = bVal;
+    else if (!bVal) removed[key] = aVal;
+    else if (aVal !== bVal) changed[key] = { from: aVal, to: bVal };
+    else identical++;
+  });
+
+  return { added, removed, changed, identical };
 }
 
-export function snapshotsMatch(a: BridgeSnapshot, b: BridgeSnapshot): boolean {
-  const d = diffSnapshots(a, b);
-  return Object.keys(d.runtime.added).length === 0
-    && Object.keys(d.runtime.changed).length === 0
-    && Object.keys(d.packages.added).length === 0
-    && Object.keys(d.packages.changed).length === 0;
+export function formatDiff(diff: DiffResult, label: string): string {
+  const lines = ['## ' + label + ' Diff', ''];
+  if (Object.keys(diff.added).length) { lines.push('### Added'); Object.entries(diff.added).forEach(([k,v]) => lines.push('+ ' + k + ': ' + v)); lines.push(''); }
+  if (Object.keys(diff.removed).length) { lines.push('### Removed'); Object.entries(diff.removed).forEach(([k,v]) => lines.push('- ' + k + ': ' + v)); lines.push(''); }
+  if (Object.keys(diff.changed).length) { lines.push('### Changed'); Object.entries(diff.changed).forEach(([k,v]) => lines.push('~ ' + k + ': ' + v.from + ' -> ' + v.to)); lines.push(''); }
+  lines.push(diff.identical + ' packages identical.');
+  return lines.join('\\n');
 }
