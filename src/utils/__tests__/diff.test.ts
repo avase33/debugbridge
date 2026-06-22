@@ -1,41 +1,43 @@
-/**
- * DebugBridge -- Diff Utility Tests
- */
+// Diff utility tests -- 2026-06-22 12:53:41
+import { diffPackages, diffEnvVars, formatDiff } from '../diff';
+import { EnvSnapshot } from '../snapshot';
 
-import { diffRecord, snapshotsMatch } from '../utils/diff';
+const baseSnap: Partial<EnvSnapshot> = {
+  id: 'test-a', capturedAt: '2026-01-01T00:00:00Z',
+  platform: 'linux', arch: 'x64', nodeVersion: 'v20.0.0', npmVersion: '10.0.0',
+  packages: { react: '^18.0.0', typescript: '^5.0.0', lodash: '^4.17.21' },
+  envVars: { NODE_ENV: 'development', PORT: '3000' },
+};
 
-describe('diffRecord', () => {
-  it('detects added keys', () => {
-    const result = diffRecord({ a: '1' }, { a: '1', b: '2' });
-    expect(result.added).toEqual({ b: '2' });
-    expect(result.removed).toEqual({});
+describe('diffPackages', () => {
+  it('detects added packages', () => {
+    const a = { ...baseSnap, packages: { react: '^18.0.0' } } as EnvSnapshot;
+    const b = { ...baseSnap, packages: { react: '^18.0.0', axios: '^1.0.0' } } as EnvSnapshot;
+    const diff = diffPackages(a, b);
+    expect(diff.added.axios).toBe('^1.0.0');
+    expect(diff.identical).toBe(1);
   });
 
-  it('detects removed keys', () => {
-    const result = diffRecord({ a: '1', b: '2' }, { a: '1' });
-    expect(result.removed).toEqual({ b: '2' });
+  it('detects removed packages', () => {
+    const a = { ...baseSnap, packages: { react: '^18.0.0', lodash: '^4.17.21' } } as EnvSnapshot;
+    const b = { ...baseSnap, packages: { react: '^18.0.0' } } as EnvSnapshot;
+    const diff = diffPackages(a, b);
+    expect(diff.removed.lodash).toBe('^4.17.21');
   });
 
-  it('detects changed values', () => {
-    const result = diffRecord({ node: '18.0.0' }, { node: '20.14.0' });
-    expect(result.changed.node).toEqual({ from: '18.0.0', to: '20.14.0' });
+  it('detects version changes', () => {
+    const a = { ...baseSnap, packages: { react: '^17.0.0' } } as EnvSnapshot;
+    const b = { ...baseSnap, packages: { react: '^18.0.0' } } as EnvSnapshot;
+    const diff = diffPackages(a, b);
+    expect(diff.changed.react.from).toBe('^17.0.0');
+    expect(diff.changed.react.to).toBe('^18.0.0');
   });
 
-  it('counts unchanged keys', () => {
-    const result = diffRecord({ a: '1', b: '2' }, { a: '1', b: '2' });
-    expect(result.unchanged).toBe(2);
-  });
-});
-
-describe('snapshotsMatch', () => {
-  const base = {
-    name: 'test', version: '1.0.0', created: '2026-01-01T00:00:00Z',
-    runtime: { node: '20.0.0' }, packages: { express: '4.19.2' }, env: { NODE_ENV: 'development' },
-  };
-  it('returns true for identical snapshots', () => {
-    expect(snapshotsMatch(base, { ...base })).toBe(true);
-  });
-  it('returns false when package version differs', () => {
-    expect(snapshotsMatch(base, { ...base, packages: { express: '4.20.0' } })).toBe(false);
+  it('handles identical environments', () => {
+    const snap = { ...baseSnap } as EnvSnapshot;
+    const diff = diffPackages(snap, snap);
+    expect(Object.keys(diff.added).length).toBe(0);
+    expect(Object.keys(diff.removed).length).toBe(0);
+    expect(Object.keys(diff.changed).length).toBe(0);
   });
 });
