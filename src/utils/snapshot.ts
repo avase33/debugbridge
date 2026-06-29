@@ -1,4 +1,4 @@
-// Environment snapshot utilities -- 2026-06-29 14:01:56
+// Environment snapshot utilities -- 2026-06-29 14:03:01
 import { execSync } from 'child_process';
 import * as os from 'os';
 
