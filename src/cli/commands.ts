@@ -1,4 +1,4 @@
-// CLI command handlers -- 2026-06-30 11:43:23
+// CLI command handlers -- 2026-06-30 11:44:16
 import { BridgeService } from '../services/bridge';
 
 const bridge = new BridgeService();
