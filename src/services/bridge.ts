@@ -1,4 +1,4 @@
-// DebugBridge core service -- 2026-07-07 13:21:42
+// DebugBridge core service -- 2026-07-07 13:24:16
 import { captureSnapshot, EnvSnapshot } from '../utils/snapshot';
 import { diffPackages, diffEnvVars, formatDiff } from '../utils/diff';
 import * as fs from 'fs';
