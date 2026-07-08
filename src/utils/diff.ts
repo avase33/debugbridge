@@ -1,4 +1,4 @@
-// Environment diff utilities -- 2026-07-08 09:36:09
+// Environment diff utilities -- 2026-07-08 09:37:13
 import { EnvSnapshot } from './snapshot';
 
 export interface DiffResult {
