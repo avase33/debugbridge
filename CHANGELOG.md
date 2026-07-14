@@ -1,6 +1,6 @@
 # DebugBridge Changelog
 
-## [Unreleased] -- 2026-07-13
+## [Unreleased] -- 2026-07-14
 
 ### Added
 - Environment snapshot capture: platform, node, npm, packages, env vars, git info
@@ -10,5 +10,5 @@
 - CLI commands: capture, list, compare, delete
 - Unit tests for diff utilities (4 test cases)
 
-## [v1.07132128] -- 2026-07-13
-- Run: 20260713212858
+## [v1.07141203] -- 2026-07-14
+- Run: 20260714120333
