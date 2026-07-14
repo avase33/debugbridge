@@ -1,4 +1,4 @@
-// Diff utility tests -- 2026-07-14 14:48:11
+// Diff utility tests -- 2026-07-14 14:49:12
 import { diffPackages, diffEnvVars, formatDiff } from '../diff';
 import { EnvSnapshot } from '../snapshot';
 
