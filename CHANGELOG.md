@@ -10,5 +10,5 @@
 - CLI commands: capture, list, compare, delete
 - Unit tests for diff utilities (4 test cases)
 
-## [v1.07221351] -- 2026-07-22
-- Run: 20260722135147
+## [v1.07221354] -- 2026-07-22
+- Run: 20260722135409
